@@ -11,6 +11,10 @@ class StartCommand extends Command
 
     public function handle()
     {
+        $latitude = '50.362366';
+        $longitude = '29.343679';
+        $stickerId = 'CAADAgADOQADfyesDlKEqOOd72VKAg';
+        $sticker_url = "https://www.gstatic.com/webp/gallery/1.webp";
 
         $message = '<b>жирный текст</b>'
             . PHP_EOL .'<i>курсивный текст</i>'
@@ -24,9 +28,16 @@ class StartCommand extends Command
             . PHP_EOL .'<pre>предварительно отформатированный блок кода фиксированной ширины</pre>'
             . PHP_EOL .'<pre><code class="language-python">предварительно отформатированный блок кода фиксированной ширины, написанный на языке программирования Python</code></pre>'
         ;
-        $this->replyWithMessage([
-            'text' => $message,
-            'parse_mode' => 'HTML'
+//        $this->replyWithMessage([
+//            'text' => $message,
+//            'parse_mode' => 'HTML'
+//        ]);
+//        $this->replyWithLocation([
+//            'latitude' => $latitude,
+//            'longitude' => $longitude,
+//        ]);
+        $this->replyWithSticker([
+            'sticker' => $stickerId,
         ]);
     }
 }
