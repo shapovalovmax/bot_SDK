@@ -2,42 +2,62 @@
 
 namespace App\Commands;
 
+use App\Models\TelegramUser;
 use Telegram\Bot\Commands\Command;
+use Telegram\Bot\Methods\Commands;
+use Telegram\Bot\Objects\User;
 
 class StartCommand extends Command
 {
     protected string $name = 'start';
     protected string $description = 'Запуск / Перезапуск бота';
+    protected TelegramUser $telegramUser;
+
+    public function __construct(TelegramUser $telegramUser)
+    {
+        $this->telegramUser = $telegramUser;
+    }
 
     public function handle()
     {
-        $latitude = '50.362366';
-        $longitude = '29.343679';
-        $stickerId = 'CAADAgADOQADfyesDlKEqOOd72VKAg';
-        $sticker_url = "https://www.gstatic.com/webp/gallery/1.webp";
+        $userData = $this->getUpdate()->message->from;
 
-        $message = '<b>жирный текст</b>'
-            . PHP_EOL .'<i>курсивный текст</i>'
-            . PHP_EOL .'<u>подчеркнутный текст</u>'
-            . PHP_EOL .'<s>перечеркнутный текст</s>'
-            . PHP_EOL .'<span class="tg-spoiler">Какой то спойлер Lorem ipsum dolor sit amet, consectetur adipisicing elit. Reprehenderit, voluptate!</span>'
-            . PHP_EOL .'<b>жирный текст <i>еще и курсивный <s>еще и перечеркнутый </s></i></b>'
-            . PHP_EOL .'<a href="http://www.example.com/">Ссылка в текстом</a>'
-            . PHP_EOL .'<a href="tg://user?id=264493118">упоминание пользователя</a>'
-            . PHP_EOL .'<code>код фиксированной ширины</code>'
-            . PHP_EOL .'<pre>предварительно отформатированный блок кода фиксированной ширины</pre>'
-            . PHP_EOL .'<pre><code class="language-python">предварительно отформатированный блок кода фиксированной ширины, написанный на языке программирования Python</code></pre>'
-        ;
-//        $this->replyWithMessage([
-//            'text' => $message,
-//            'parse_mode' => 'HTML'
-//        ]);
-//        $this->replyWithLocation([
-//            'latitude' => $latitude,
-//            'longitude' => $longitude,
-//        ]);
-        $this->replyWithSticker([
-            'sticker' => $stickerId,
+        $userId = $userData->id;
+
+        $telegramUser = $this->telegramUser->where('user_id','=', $userId)->first();
+
+        if($telegramUser){
+            $this->sendAnswerForOldUsers();
+        } else {
+            $this->addNewTelegramUser($userData);
+            $this->sendAnswerForNewUsers();
+        }
+
+    }
+
+    public function sendAnswerForNewUsers()
+    {
+        $this->replyWithMessage([
+            'text' => 'Вітаємо у нашому телеграм боті!️️️️️️️'
+        ]);
+    }
+    public function sendAnswerForOldUsers()
+    {
+        $this->replyWithMessage([
+            'text' => 'Раді вас бачити знову!☺️️️️️️️'
+        ]);
+    }
+
+    public function addNewTelegramUser(User $userData)
+    {
+        $this->telegramUser->insert([
+            'user_id' => $userData->id,
+            'username' => $userData->username,
+            'first_name' => $userData->first_name,
+            'last_name' => $userData->last_name,
+            'language_code' => $userData->language_code,
+            'is_premium' => $userData->is_premium,
+            'is_bot' => $userData->is_bot,
         ]);
     }
 }
